@@ -1,0 +1,91 @@
+---
+title: "Training project Data.Rmd"
+output: html_document
+---
+ The code for training data: "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+ and "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testining.csv"
+
+
+```{r}
+library(caret);library(ggplot2)
+training-project-data <- function(){
+
+  # Read downloaded data
+trainingData <- read.csv("trainingset.csv",strip.white = T)
+namesred <- names(trainingData)[-c(1:7)]
+
+# pick features explained in the write-up
+reduce <- grep("kurtosis",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("skewness",namesred)
+ namesred <- namesred[-reduce]
+
+
+reduce <- grep("amplitude",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("max",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("min",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("std",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("avg",namesred)
+ namesred <- namesred[-reduce]
+
+reduce <- grep("var",namesred)
+ namesred <- namesred[-reduce]
+
+trainDatared <- trainingData[,namesred]
+
+# Create a training and testing set
+inTrain <- createDataPartition(y=trainDatared$classe,p=0.7,list=F)
+trainredpart <- trainDatared[inTrain,]
+testredpart <-  trainDatared[-inTrain,]
+
+# train according to the random Forest method
+modFitrf <- train(trainredpart$classe ~ ., method="rf",data=trainredpart)
+
+modFitrf$finalModel
+
+#-------------------Errors of training and testing Case--------------
+predtrain <- predict(modFitrf,trainredpart)
+confusionMatrix(trainredpart$classe,predtrain)
+ predtest <- predict(modFitrf,testredpart)
+confusionMatrix(testredpart$classe,predtest)
+
+
+#----------Prdection of 20 cases-------------------------------------
+assignmentpred <- read.csv("testingset.csv")
+namesredassign <- namesred
+namesredassign[[53]] <- "problem_id"
+assignmentpredred <- assignmentpred[,namesredassign]
+predassign <- predict(modFitrf, assignmentpredred)
+predassign
+
+
+
+#----------------Fit gbm model ----------------------------------
+modFitgbm <- train(trainredpart$classe ~ ., method="gbm",data=trainredpart)
+
+modFitgbm$finalModel
+#-------------------Errors of training and testing Case--------------
+predtrain <- predict(modFitgbm,trainredpart)
+confusionMatrix(trainredpart$classe,predtrain)
+ predtest <- predict(modFitgbm,testredpart)
+confusionMatrix(testredpart$classe,predtest)
+
+#----------Prdection of 20 cases-------------------------------------
+assignmentpred <- read.csv("testingset.csv")
+namesredassign <- namesred
+namesredassign[[53]] <- "problem_id"
+assignmentpredred <- assignmentpred[,namesredassign]
+predassigngbm <- predict(modFitgbm, assignmentpredred)
+predassigngbm
+
+}
+```
