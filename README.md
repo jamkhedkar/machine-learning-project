@@ -4,6 +4,7 @@ machine-learning-project
 The Coursera Machine Learning Course Project
 
 This repository consists of three files:
+
 1. machine-learning-proj-writeup.Rmd - Contains a summary of training process and conclusions.
 
 2. training-project-data.Rmd - Contains the actual R code used to train the given data
